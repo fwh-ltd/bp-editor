@@ -28,5 +28,8 @@
   "license": "ISC",
   "devDependencies": {
     "parcel": "^2.15.2"
+  },
+  "dependencies": {
+    "@toast-ui/editor": "^3.2.2"
   }
 }
