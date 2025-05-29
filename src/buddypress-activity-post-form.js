@@ -1,4 +1,7 @@
-/* global bp, BP_Nouveau, _, Backbone, tinymce, bp_media_dropzone */
+// This file now uses ToastUI Editor. Ensure that the ToastUI library and its CSS are included in your project.
+// e.g., <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+//       <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+/* global bp, BP_Nouveau, _, Backbone, toastui, bp_media_dropzone */
 /* @version 3.1.0 */
 /*jshint esversion: 6 */
 window.wp = window.wp || {};
@@ -195,12 +198,6 @@ window.bp = window.bp || {};
 
 		},
 
-		/**
-		 *
-		 * Renamed it displayEditActivityPopup to displayEditActivityForm();
-		 *
-		 * @param activity_data
-		 */
 		displayEditActivityForm : function( activity_data, activity_URL_preview ) {
 			var self = this;
 
@@ -223,39 +220,29 @@ window.bp = window.bp || {};
 			self.displayEditActivity( activity_data, activity_URL_preview );
 			this.model.set( 'edit_activity', true );
 
-			var edit_activity_editor         = $( '#whats-new' )[0];
-			var edit_activity_editor_content = $( '#whats-new-content' )[0];
+			var edit_activity_editor_el = $( '#whats-new' )[0];
 
-			window.activity_edit_editor = new window.MediumEditor(
-				edit_activity_editor,
-				{
-					placeholder: {
-						text: '',
-						hideOnClick: true
-					},
-					toolbar: {
-						buttons: [ 'bold', 'italic', 'unorderedlist', 'orderedlist', 'quote', 'anchor', 'pre' ],
-						relativeContainer: edit_activity_editor_content,
-						static: true,
-						updateOnEmptySelection: true
-					},
-					imageDragging: false,
-					anchor: {
-						linkValidation: true
-					}
-				}
-			);
+			if (window.activity_edit_editor && typeof window.activity_edit_editor.destroy === 'function') {
+				window.activity_edit_editor.destroy();
+			}
 
-			window.activity_edit_editor.subscribe( 'editablePaste', function ( e ) {
-				setTimeout( function() {
-					// Wrap all target <li> elements in a single <ul>
-					var targetLiElements = $(e.target).find('li').filter(function() {
-						return !$(this).parent().is('ul') && !$(this).parent().is('ol');
-					});
-					if (targetLiElements.length > 0) {
-						targetLiElements.wrapAll('<ul></ul>');
-					}
-				}, 0 );
+			window.activity_edit_editor = new toastui.Editor({
+				el: edit_activity_editor_el,
+				initialEditType: 'wysiwyg',
+				previewStyle: 'tab',
+				height: 'auto', // Adjust as needed
+				placeholder: BP_Nouveau.activity.strings.whatsnewPlaceholder || '',
+				initialValue: $(edit_activity_editor_el).html(), // Preserve existing content if any before init
+				toolbarItems: [
+					['bold', 'italic'],
+					['ul', 'ol'],
+					['quote'],
+					['link'],
+					['codeblock'] // 'pre' equivalent
+				],
+				events: {
+					// Standard ToastUI events like 'change', 'focus', 'blur' can go here if needed
+				},
 			});
 
 			// Now Show the Modal.
@@ -354,24 +341,27 @@ window.bp = window.bp || {};
 			var self = this;
 
 			self.postForm.$el.parent( '#bp-nouveau-activity-form' ).removeClass( 'bp-hide' );
-			self.postForm.$el.find( '#whats-new' ).html( activity_data.content );
+
+			if (window.activity_edit_editor) {
+				window.activity_edit_editor.setHTML(activity_data.content || '');
+				window.activity_edit_editor.focus();
+			} else if (window.activity_editor) { // Fallback to main editor instance if edit one is not available
+				window.activity_editor.setHTML(activity_data.content || '');
+				window.activity_editor.focus();
+			} else {
+				// Fallback if no editor instance is ready (initial load before editor init)
+				self.postForm.$el.find( '#whats-new' ).html( activity_data.content );
+				var element = self.postForm.$el.find( '#whats-new' ).get( 0 );
+				if (element) element.focus();
+			}
+
 			if( activity_URL_preview != null ) {
 				self.postForm.$el.find( '#whats-new' ).data( 'activity-url-preview', activity_URL_preview );
 			}
-			var element = self.postForm.$el.find( '#whats-new' ).get( 0 );
-			element.focus();
 
 			if ( 0 < parseInt( activity_data.id ) ) {
-
-				if ( 'undefined' !== typeof window.getSelection && 'undefined' !== typeof document.createRange ) {
-					var range = document.createRange();
-					range.selectNodeContents( element );
-					range.collapse( false );
-					var selection = window.getSelection();
-					selection.removeAllRanges();
-					selection.addRange( range );
-				}
-
+				// Focusing and selection are handled by ToastUI's focus() method.
+				// If specific range selection is needed, ToastUI's getSelection() and setSelection() would be used.
 				self.postForm.$el.find( '#bp-activity-id' ).val( activity_data.id );
 			} else {
 				activity_data.gif          = activity_data.gif_data;
@@ -855,13 +845,7 @@ window.bp = window.bp || {};
 
 					bp.Nouveau.Activity.postForm.postGifGroup = new bp.Views.PostGifGroup( { model: this.model } );
 
-					// check emoji is enable in groups or not.
-					if ( ! _.isUndefined( BP_Nouveau.media.emoji.groups ) && false === BP_Nouveau.media.emoji.groups ) {
-						$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
-						$( '#editor-toolbar .post-emoji' ).addClass( 'post-emoji-hide' );
-					} else {
-						$( '#editor-toolbar .post-emoji' ).removeClass( 'post-emoji-hide' );
-					}
+					// Emoji button functionality for groups removed as host OS emoji is sufficient.
 
 				} else {
 					// check media is enable in profile or not.
@@ -896,13 +880,7 @@ window.bp = window.bp || {};
 
 					bp.Nouveau.Activity.postForm.postGifProfile = new bp.Views.PostGifProfile( {model: this.model} );
 
-					// check emoji is enable in profile or not.
-					if ( ! _.isUndefined( BP_Nouveau.media.emoji.profile ) && false === BP_Nouveau.media.emoji.profile ) {
-						$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
-						$( '#editor-toolbar .post-emoji' ).addClass( 'post-emoji-hide' );
-					} else {
-						$( '#editor-toolbar .post-emoji' ).removeClass( 'post-emoji-hide' );
-					}
+					// Emoji button functionality for profile removed as host OS emoji is sufficient.
 
 				}
 			}
@@ -1121,9 +1099,18 @@ window.bp = window.bp || {};
 				}
 			);
 
-			// Add valid line breaks.
-			var content = $.trim( self.postForm.$el.find( '#whats-new' )[ 0 ].innerHTML.replace( /<div>/gi, '\n' ).replace( /<\/div>/gi, '' ) );
-			content     = content.replace( /&nbsp;/g, ' ' );
+			var content = '';
+			// Prefer the main editor instance if available, otherwise fallback to edit instance or direct HTML
+			if (window.activity_editor) {
+				content = window.activity_editor.getHTML();
+			} else if (window.activity_edit_editor) {
+				content = window.activity_edit_editor.getHTML();
+			} else {
+				// Fallback if editor not initialized
+				var whatsNewEl = self.postForm.$el.find( '#whats-new' )[0];
+				if (whatsNewEl) content = $.trim( whatsNewEl.innerHTML );
+			}
+			content = content.replace( /&nbsp;/g, ' ' ); // Keep common cleanup
 
 			self.postForm.model.set( 'content', content, {silent: true} );
 
@@ -1569,7 +1556,7 @@ window.bp = window.bp || {};
 		);
 	}
 
-	/** Models ****************************************************************/
+	//* Models ****************************************************************
 
 	// The Activity to post.
 	bp.Models.Activity = Backbone.Model.extend(
@@ -1635,7 +1622,7 @@ window.bp = window.bp || {};
 	// Model object, to fetch ajax data for activity group when load more
 	bp.Models.fetchData = Backbone.Model.extend( {} );
 
-	/** Collections ***********************************************************/
+	//** Collections ***********************************************************
 
 	// Objects, the activity can be attached to (groups or blogs or any others).
 	bp.Collections.ActivityObjects = Backbone.Collection.extend(
@@ -1675,7 +1662,7 @@ window.bp = window.bp || {};
 		url: BP_Nouveau.ajaxurl
 	} );
 
-	/** Views *****************************************************************/
+	// Views *****************************************************************
 
 	// Header.
 	bp.Views.ActivityHeader = bp.View.extend(
@@ -1730,12 +1717,6 @@ window.bp = window.bp || {};
 				$( 'body' ).removeClass( 'initial-post-form-open' );
 				this.$el.parent().find( '#aw-whats-new-reset' ).trigger( 'click' ); //Trigger reset
 				this.model.set( 'privacy_modal', 'general' );
-
-				// Reset group
-				// var selected_item = this.$el.closest( '#whats-new-form' ).find( '.bp-activity-object.selected' );
-				// selected_item.find( '.privacy-radio' ).removeClass( 'selected' );
-				// selected_item.find( '.bp-activity-object__radio' ).prop('checked', false);
-				// selected_item.removeClass( 'selected' );
 
 				// Loose post form textarea focus for Safari.
 				if ( navigator.userAgent.includes( 'Safari' ) && ! navigator.userAgent.includes( 'Chrome' ) ) {
@@ -2852,7 +2833,7 @@ window.bp = window.bp || {};
 				var tool_box_comment = this.$el.parents( '.bp-ac-form-container' );
 
 				if ( this.standalone ) {
-					this.$el.closest( '.screen-content, .elementor-widget-container' ).find( '#activity-modal .ac-form' ).removeClass( 'has-gif' );
+					this.$el.closest( '.screen-content, .elementor-widget-container, .buddypress-wrap' ).find( '#activity-modal .ac-form' ).removeClass( 'has-gif' );
 				} else {
 					this.$el.closest( '.ac-form' ).removeClass( 'has-gif' );
 				}
@@ -3197,21 +3178,9 @@ window.bp = window.bp || {};
 	bp.Views.WhatsNew = bp.View.extend(
 		{
 			tagName: 'div',
-			className: 'bp-suggestions',
-			id: 'whats-new',
-			events: {
-				'paste': 'handlePaste',
-				'keyup': 'handleKeyUp',
-				'click': 'handleClick'
-			},
+			id: 'whats-new', // This ID is used as the ToastUI editor's mount point
 			attributes: {
-				name: 'whats-new',
-				cols: '50',
-				rows: '4',
-				placeholder: BP_Nouveau.activity.strings.whatsnewPlaceholder,
 				'aria-label': BP_Nouveau.activity.strings.whatsnewLabel,
-				contenteditable: true,
-				autocorrect: 'off',
 				'data-suggestions-group-id': ! _.isUndefined( BP_Nouveau.activity.params.object ) && 'group' === BP_Nouveau.activity.params.object ? BP_Nouveau.activity.params.item_id : false,
 			},
 			loadURLAjax: null,
@@ -3219,27 +3188,27 @@ window.bp = window.bp || {};
 
 			initialize: function () {
 				this.on( 'ready', this.adjustContent, this );
-				this.on( 'ready', this.activateTinyMce, this );
+				this.on( 'ready', this.activateToastUIEditor, this ); // Renamed
 				this.options.activity.on( 'change:content', this.resetContent, this );
 				this.linkTimeout = null;
 			},
 
 			adjustContent: function () {
-
-				// First adjust layout.
-				this.$el.css(
-					{
-						resize: 'none',
-						height: '50px'
-					}
-				);
+				// Initial height can be set in ToastUI options.
+				// This function might still be useful for other adjustments if needed.
 
 				// Check for mention.
 				var mention = bp.Nouveau.getLinkParams( null, 'r' ) || null;
 
 				if ( ! _.isNull( mention ) ) {
-					this.$el.text( '@' + _.escape( mention ) + ' ' );
-					this.$el.focus();
+					var initialContent = '@' + _.escape( mention ) + ' ';
+					if (window.activity_editor) {
+						window.activity_editor.setHTML(initialContent);
+						window.activity_editor.focus();
+					} else {
+						// Fallback if editor not yet initialized, set content on the div itself
+						this.$el.html(initialContent);
+					}
 				}
 			},
 
@@ -3247,58 +3216,11 @@ window.bp = window.bp || {};
 				if ( _.isUndefined( activity ) ) {
 					return;
 				}
-
-				this.$el.html( activity.get( 'content' ) );
-			},
-
-			handlePaste: function () {
-				// trigger keyup event of this view to handle changes.
-				this.$el.trigger( 'keyup' );
-			},
-
-			handleKeyUp: function () {
-				var self = this;
-
-				if ( ! _.isUndefined( BP_Nouveau.activity.params.link_preview ) ) {
-					if ( this.linkTimeout != null ) {
-						clearTimeout( this.linkTimeout );
-					}
-
-					this.linkTimeout = setTimeout(
-						function () {
-							this.linkTimeout = null;
-							self.scrapURL( window.activity_editor.getContent() );
-						},
-						500
-					);
-				}
-
-				this.saveCaretPosition();
-
-				var scrollViewScrollHeight = this.$el.closest( '.whats-new-scroll-view' ).prop('scrollHeight');
-				var scrollViewClientHeight = this.$el.closest( '.whats-new-scroll-view' ).prop('clientHeight');
-
-				if ( scrollViewScrollHeight > scrollViewClientHeight ) {
-					this.$el.closest( '#whats-new-form' ).addClass( 'focus-in--scroll' );
+				if (window.activity_editor) {
+					window.activity_editor.setHTML( activity.get( 'content' ) || '' );
 				} else {
-					this.$el.closest( '#whats-new-form' ).removeClass( 'focus-in--scroll' );
-				}
-
-
-			},
-
-			handleClick: function() {
-				this.saveCaretPosition();
-			},
-
-			saveCaretPosition: function () {
-				if (window.getSelection && document.createRange) {
-					var sel = window.getSelection && window.getSelection();
-					if (sel && sel.rangeCount > 0) {
-						window.activityCaretPosition = sel.getRangeAt(0);
-					}
-				} else {
-					window.activityCaretPosition = document.selection.createRange();
+					// Fallback if editor not initialized
+					this.$el.html( activity.get( 'content' ) );
 				}
 			},
 
@@ -3350,6 +3272,7 @@ window.bp = window.bp || {};
 				}
 			},
 
+			// This function's logic for extracting URL from text seems generic enough to keep.
 			getURL: function ( prefix, urlText ) {
 				var urlString   = '';
 				urlText         = urlText.replace( /&nbsp;/g, '' );
@@ -3519,88 +3442,79 @@ window.bp = window.bp || {};
 					);
 				}
 			},
-			activateTinyMce: function () {
+			activateToastUIEditor: function () { // Renamed from activateTinyMce
+				var self = this;
+				var editorElement = this.$el[0]; // The div with id="whats-new"
+				console.log('WhatsNew.activateToastUIEditor: Entered.');
+				var isNotEditModal = !$(editorElement).closest('.edit-activity-modal-body').length;
+				console.log('WhatsNew.activateToastUIEditor: Condition !$(editorElement).closest(".edit-activity-modal-body").length is', isNotEditModal);
 
-				if ( ! _.isUndefined( window.MediumEditor ) ) {
-
-					$( '#whats-new' ).each(
-						function () {
-							var $this           = $( this );
-							var whatsnewcontent = $this.closest( '#whats-new-form' ).find( '#editor-toolbar' )[ 0 ];
-
-							if ( ! $( this ).closest( '.edit-activity-modal-body' ).length ) {
-
-								window.activity_editor = new window.MediumEditor(
-									$this,
-									{
-										placeholder: {
-											text: '',
-											hideOnClick: true
-										},
-										toolbar: {
-											buttons: [ 'bold', 'italic', 'unorderedlist', 'orderedlist', 'quote', 'anchor', 'pre' ],
-											relativeContainer: whatsnewcontent,
-											static: true,
-											updateOnEmptySelection: true
-										},
-										paste: {
-											forcePlainText: false,
-											cleanPastedHTML: true,
-											cleanReplacements: [
-												[ new RegExp( /<div/gi ), '<p' ],
-												[ new RegExp( /<\/div/gi ), '</p' ],
-												[ new RegExp( /<h[1-6]/gi ), '<b' ],
-												[ new RegExp( /<\/h[1-6]/gi ), '</b' ],
-											],
-											cleanAttrs: [ 'class', 'style', 'dir', 'id' ],
-											cleanTags: [ 'meta', 'div', 'main', 'section', 'article', 'aside', 'button', 'svg', 'canvas', 'figure', 'input', 'textarea', 'select', 'label', 'form', 'table', 'thead', 'tfooter', 'colgroup', 'col', 'tr', 'td', 'th', 'dl', 'dd', 'center', 'caption', 'nav', 'img' ],
-											unwrapTags: []
-										},
-										imageDragging: false,
-										anchor: {
-											placeholderText: BP_Nouveau.anchorPlaceholderText,
-											linkValidation: true
-										}
-									}
-								);
-
-								window.activity_editor.subscribe( 'editablePaste', function ( e ) {
-									setTimeout( function() {
-										// Wrap all target <li> elements in a single <ul>
-										var targetLiElements = $(e.target).find('li').filter(function() {
-											return !$(this).parent().is('ul') && !$(this).parent().is('ol');
-										});
-										if (targetLiElements.length > 0) {
-											targetLiElements.wrapAll('<ul></ul>');
-										}
-									}, 0 );
-								});
-							}
-						}
-					);
-
-					$( document ).on ( 'keyup', '.activity-form .medium-editor-toolbar-input', function( event ) {
-
-						var URL = event.target.value;
-
-						if ( bp.Nouveau.isURL( URL ) ) {
-							$( event.target ).removeClass('isNotValid').addClass('isValid');
-						} else {
-							$( event.target ).removeClass('isValid').addClass('isNotValid');
-						}
-
-					});
-
-					// check for mentions in the url, if set any then focus to editor.
-					var mention = bp.Nouveau.getLinkParams( null, 'r' ) || null;
-
-					// Check for mention.
-					if ( ! _.isNull( mention ) ) {
-						$( '#message_content' ).focus();
+				if ( ! _.isUndefined( window.toastui ) && isNotEditModal ) {
+					console.log('WhatsNew.activateToastUIEditor: Condition met. Initializing ToastUI editor for #whats-new.');
+					if (window.activity_editor && typeof window.activity_editor.destroy === 'function') {
+						console.log('WhatsNew.activateToastUIEditor: Destroying previous window.activity_editor.');
+						window.activity_editor.destroy();
 					}
 
-				} else if ( ! _.isUndefined( tinymce ) ) {
-					tinymce.EditorManager.execCommand( 'mceAddEditor', true, 'whats-new' ); // jshint ignore:line
+					window.activity_editor = new toastui.Editor({
+						el: editorElement,
+						initialEditType: 'wysiwyg',
+						previewStyle: 'tab', // Or 'vertical'
+						height: 'auto', // Adjust as needed, or set a fixed height e.g., '200px'
+						minHeight: '100px', // Or your preferred min height
+						placeholder: BP_Nouveau.activity.strings.whatsnewPlaceholder || '',
+						initialValue: this.$el.html(), // Preserve existing content if any
+						toolbarItems: [
+							['bold', 'italic'],
+							['ul', 'ol'],
+							['quote'],
+							['link'],
+							['codeblock'] // 'pre' equivalent
+						],
+						events: { // Standard ToastUI events
+							change: function() {
+								// Handle URL scraping
+								if ( ! _.isUndefined( BP_Nouveau.activity.params.link_preview ) ) {
+									if ( self.linkTimeout != null ) {
+										clearTimeout( self.linkTimeout );
+									}
+									self.linkTimeout = setTimeout(
+										function () {
+											self.linkTimeout = null;
+											self.scrapURL( window.activity_editor.getHTML() );
+										},
+										500
+									);
+								}
+
+								// Handle scroll class
+								var editorContentElement = $(window.activity_editor.getEditorElements().wwEditor); // Wysiwyg editor element
+								var scrollView = editorContentElement.closest( '.whats-new-scroll-view' );
+								if (scrollView.length) {
+									var scrollViewScrollHeight = scrollView.prop('scrollHeight');
+									var scrollViewClientHeight = scrollView.prop('clientHeight');
+									if ( scrollViewScrollHeight > scrollViewClientHeight ) {
+										scrollView.closest( '#whats-new-form' ).addClass( 'focus-in--scroll' );
+									} else {
+										scrollView.closest( '#whats-new-form' ).removeClass( 'focus-in--scroll' );
+									}
+								}
+								// Trigger postValidate on the form
+								self.$el.closest('form#whats-new-form').trigger('input');
+							}
+						},
+					});
+					console.log('WhatsNew.activateToastUIEditor: window.activity_editor assigned:', window.activity_editor);
+
+					// Check for mentions (this part might need adjustment based on how mentions are integrated with ToastUI)
+					var mention = bp.Nouveau.getLinkParams( null, 'r' ) || null;
+					if ( ! _.isNull( mention ) ) {
+						// This was $( '#message_content' ).focus();
+						// For ToastUI, it should be:
+						if (window.activity_editor) window.activity_editor.focus();
+					}
+				} else {
+					console.log('WhatsNew.activateToastUIEditor: Condition NOT met or toastui undefined. Editor not initialized/assigned to window.activity_editor.');
 				}
 			}
 		}
@@ -4286,8 +4200,6 @@ window.bp = window.bp || {};
 					$( e.currentTarget ).closest( '#whats-new-privacy-stage' ).find( '#whats-new-post-in' ).val( 'group' ).trigger('change');
 					whats_new_form.addClass( 'focus-in--group' );
 					this.model.set( 'privacy_modal', 'group' );
-					// First time when we open group selector and select any one group and close it
-					// and then back again on the same screen then object should be group to display the same view screen
 					this.model.set( 'object', $( e.currentTarget ).val() );
 					$( '#activity-post-form-privacy' ).hide();
 
@@ -4354,39 +4266,13 @@ window.bp = window.bp || {};
 			tagName: 'div',
 			id: 'whats-new-content',
 			events: {
-				'click .medium-editor-toolbar-actions': 'focusEditor',
-				'input #whats-new': 'focusEditorOnChange',
-				'click .medium-editor-toolbar li.close-btn': 'hideToolbarSelector',
 			},
 
 			initialize: function () {
-				this.$el.html( $( '<div></div>' ).prop( 'id', 'whats-new-textarea' ) );
+				this.$el.html( $( '<div></div>' ).prop( 'id', 'whats-new-textarea' ) ); // This div will be the ToastUI mount point
 				this.$el.append( '<input type="hidden" name="id" id="bp-activity-id" value="0"/>' );
 				this.views.set( '#whats-new-textarea', new bp.Views.WhatsNew( { activity: this.options.activity } ) );
 			},
-
-			hideToolbarSelector: function ( e ) {
-				e.preventDefault();
-				var medium_editor = $( e.currentTarget ).closest( '#whats-new-form' ).find( '.medium-editor-toolbar' );
-				medium_editor.removeClass( 'active' );
-			},
-
-			focusEditor: function ( e ) {
-				if ( window.activity_editor.exportSelection() === null ) {
-					$( e.currentTarget ).closest( '#whats-new-form' ).find( '#whats-new-textarea > div' ).focus();
-				}
-				e.preventDefault();
-			},
-			focusEditorOnChange: function ( e ) { // Fix issue of Editor loose focus when formatting is opened after selecting text.
-				var medium_editor = $( e.currentTarget ).closest( '#whats-new-form' ).find( '.medium-editor-toolbar' );
-				setTimeout(
-					function () {
-						medium_editor.addClass( 'medium-editor-toolbar-active' );
-						$( e.currentTarget ).closest( '#whats-new-form' ).find( '#whats-new-textarea > div' ).focus();
-					},
-					0
-				);
-			}
 		}
 	);
 
@@ -4535,7 +4421,7 @@ window.bp = window.bp || {};
 
 						// check emoji is enable in groups or not.
 						if ( BP_Nouveau.media.emoji.groups === false ) {
-							$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
+							// $( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove(); // Removed, EmojioneArea is gone
 							$( '#editor-toolbar .post-emoji' ).addClass('post-emoji-hide');
 						} else {
 							$( '#editor-toolbar .post-emoji' ).removeClass('post-emoji-hide');
@@ -4577,12 +4463,10 @@ window.bp = window.bp || {};
 						// check emoji is enable in profile or not.
 						if ( BP_Nouveau.media.emoji.profile === false ) {
 							$( '#editor-toolbar .post-emoji' ).addClass('post-emoji-hide');
-							$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
 						} else {
 							$( '#editor-toolbar .post-emoji' ).removeClass('post-emoji-hide');
 						}
 					}
-					$( '.medium-editor-toolbar' ).removeClass( 'active medium-editor-toolbar-active' );
 					$( '#show-toolbar-button' ).removeClass( 'active' );
 					$( '#show-toolbar-button' ).parent( '.show-toolbar' ).attr( 'data-bp-tooltip', $( '#show-toolbar-button' ).parent( '.show-toolbar' ).attr( 'data-bp-tooltip-show' ) );
 				}
@@ -4596,87 +4480,22 @@ window.bp = window.bp || {};
 			id: 'editor-toolbar',
 			template: bp.template( 'editor-toolbar' ),
 			events: {
-				'click .show-toolbar': 'toggleToolbarSelector',
 				'click .post-mention': 'triggerMention'
-			},
-
-			toggleToolbarSelector: function ( e ) {
-				e.preventDefault();
-				var medium_editor = $( e.currentTarget ).closest( '#whats-new-form' ).find( '.medium-editor-toolbar' );
-				if( !medium_editor.hasClass( 'active' ) ) { // Check only when opening toolbar
-					bp.Nouveau.mediumEditorButtonsWarp( medium_editor );
-				}
-				$( e.currentTarget ).find( '.toolbar-button' ).toggleClass( 'active' );
-				if ( $( e.currentTarget ).find( '.toolbar-button' ).hasClass( 'active' ) ) {
-					$( e.currentTarget ).attr( 'data-bp-tooltip', jQuery( e.currentTarget ).attr( 'data-bp-tooltip-hide' ) );
-					if ( window.activity_editor.exportSelection() != null ) {
-						medium_editor.addClass( 'medium-editor-toolbar-active' );
-					}
-				} else {
-					$( e.currentTarget ).attr( 'data-bp-tooltip', jQuery( e.currentTarget ).attr( 'data-bp-tooltip-show' ) );
-					if ( window.activity_editor.exportSelection() === null ) {
-						medium_editor.removeClass( 'medium-editor-toolbar-active' );
-					}
-					medium_editor.find( 'li.medium-editor-action-more').removeClass( 'active' );
-				}
-				$( window.activity_editor.elements[0] ).focus();
-				medium_editor.toggleClass( 'medium-editor-toolbar-active active' );
 			},
 
 			triggerMention: function ( e ) {
 				e.preventDefault();
-				var $this = this.$el;
-				var editor = $this.closest( '.activity-update-form' ).find( '#whats-new' );
-
-				var scrollPostion = $this.closest( '.whats-new-scroll-view' ).scrollTop();
-
-				setTimeout( function () {
-					editor.focus();
-
-					//Restore caret position start
-					if( window.activityCaretPosition ) {
-						if (window.getSelection && document.createRange) {
-							var range = document.createRange();
-							range.setStart(window.activityCaretPosition.startContainer, window.activityCaretPosition.startOffset);
-							range.setEnd(window.activityCaretPosition.endContainer, window.activityCaretPosition.endOffset);
-							var sel = window.getSelection();
-							sel.removeAllRanges();
-							sel.addRange(range);
-						} else {
-							var textRange = document.body.createTextRange();
-							textRange.moveToElementText(editor[0]);
-							textRange.setStart(window.activityCaretPosition.startContainer, window.activityCaretPosition.startOffset);
-							textRange.setEnd(window.activityCaretPosition.endContainer, window.activityCaretPosition.endOffset);
-							textRange.select();
-						}
+				if (window.activity_editor) {
+					var currentHTML = window.activity_editor.getHTML();
+					if (currentHTML.slice(-1) === ' ' || currentHTML === '') {
+						window.activity_editor.insertText('@');
+					} else {
+						window.activity_editor.insertText(' @');
 					}
-					//Restore caret position end
-
-					// Get character before cursor start
-					var currentRange = window.getSelection().getRangeAt(0).cloneRange();
-					currentRange.collapse(true);
-					currentRange.setStart(editor[0], 0);
-					var precedingChar = currentRange.toString().slice(-1);
-					// Get character before cursor end
-
-					if( !$( currentRange.endContainer.parentElement ).hasClass( 'atwho-inserted' ) ) { // Do nothing if mention '@' is already inserted
-
-						if( precedingChar.trim() === '') { // Check if there's space or add one
-							document.execCommand('insertText', false, '@');
-						} else if( precedingChar !== '@' ){
-							document.execCommand('insertText', false, ' @');
-						}
-
-					}
-					editor.trigger( 'keyup' );
-					setTimeout( function () {
-						editor.trigger( 'keyup' );
-						$this.closest( '.whats-new-scroll-view' ).scrollTop(scrollPostion);
-					},0);
-				},0);
-
+					window.activity_editor.focus();
+					$(window.activity_editor.getEditorElements().wwEditor).trigger('keyup');
+				}
 			}
-
 		}
 	);
 
@@ -4709,7 +4528,7 @@ window.bp = window.bp || {};
 				this.$el.html( this.template( this.model.attributes ) );
 				this.$self          = this.$el.find( '#activity-gif-button' );
 				this.$gifPickerEl   = this.$el.find( '.gif-media-search-dropdown' );
-				this.$emojiPickerEl = $( '#whats-new' );
+				this.$emojiPickerEl = $( '#whats-new' ); // This might need to target ToastUI's container if emoji picker is integrated
 				this.$el.removeClass( 'hidden' );
 				setTimeout( function() {
 					var $thisEl = $('.activity-form #whats-new-toolbar');
@@ -4974,11 +4793,6 @@ window.bp = window.bp || {};
 		}
 	);
 
-	/**
-	 * Now build the buttons!
-	 *
-	 * @type {[type]}
-	 */
 	bp.Views.FormButtons = bp.View.extend(
 		{
 			tagName: 'div',
@@ -5021,12 +4835,7 @@ window.bp = window.bp || {};
 							if ( view.model.get( 'id' ) !== button.get( 'id' ) ) {
 								// Silently update the model.
 								view.model.set( 'active', false, { silent: true } );
-
-								// Remove the active class.
 								view.$el.removeClass( 'active' );
-
-								// Trigger an even to let Buttons reset
-								// their modifications to the activity model.
 								this.collection.trigger( 'reset:' + view.model.get( 'id' ), this.model );
 							}
 						},
@@ -5036,8 +4845,6 @@ window.bp = window.bp || {};
 					// Tell the active Button to load its content.
 					this.collection.trigger( 'display:' + button.get( 'id' ), this );
 
-					// Trigger an even to let Buttons reset
-					// their modifications to the activity model.
 				} else {
 					this.collection.trigger( 'reset:' + button.get( 'id' ), this.model );
 				}
@@ -5219,13 +5026,11 @@ window.bp = window.bp || {};
 			},
 
 			events: {
-				'focus #whats-new': 'displayFull',
-				'input #whats-new': 'postValidate',
+				'focus #whats-new': 'displayFull', // This might need adjustment if #whats-new is just a container
 				'reset': 'resetForm',
 				'submit': 'postUpdate',
-				'keydown': 'postUpdate',
+				'keydown': 'postUpdate', // This is for Ctrl+Enter, might still work if focus is managed
 				'click #whats-new-toolbar': 'triggerDisplayFull',
-				'change .medium-editor-toolbar-input': 'mediumLink',
 				'click #discard-draft-activity': 'discardDraftActivity',
 			},
 
@@ -5277,12 +5082,15 @@ window.bp = window.bp || {};
 				// Clone the model to set the resetted one.
 				this.resetModel = this.model.clone();
 
+				// Store FormContent view instance
+				this.formContentView = new bp.Views.FormContent( { activity: this.model, model: this.model } );
+
 				this.views.set(
 					[
 						new bp.Views.ActivityHeader( { model: this.model } ),
 						new bp.Views.UserStatusHuddle( { model: this.model } ),
 						new bp.Views.PrivacyStage( { model: this.model } ),
-						new bp.Views.FormContent( { activity: this.model, model: this.model } ),
+						this.formContentView, // Use the stored instance
 						new bp.Views.EditorToolbar( { model: this.model } ),
 						new bp.Views.ActivityToolbar( { model: this.model } ) //Add Toolbar to show in default view
 					]
@@ -5297,73 +5105,43 @@ window.bp = window.bp || {};
 						$this.displayFull( event );
 						$this.$el.closest( '.activity-update-form' ).find( '#aw-whats-new-reset' ).trigger( 'click' ); //Trigger reset
 					}
-					if ( ! _.isUndefined( BP_Nouveau.media ) &&
-					     ! _.isUndefined( BP_Nouveau.media.emoji ) &&
-					     (
-						     ( ! _.isUndefined( BP_Nouveau.media.emoji.profile ) && BP_Nouveau.media.emoji.profile ) ||
-						     ( ! _.isUndefined( BP_Nouveau.media.emoji.groups ) && BP_Nouveau.media.emoji.groups )
-					     )
-					) {
-						$( '#whats-new' ).emojioneArea(
-							{
-								standalone: true,
-								hideSource: false,
-								container: '#editor-toolbar > .post-emoji',
-								autocomplete: false,
-								pickerPosition: 'bottom',
-								hidePickerOnBlur: true,
-								useInternalCDN: false,
-								events: {
-									emojibtn_click: function () {
-										$( '#whats-new' )[0].emojioneArea.hidePicker();
-										if ( window.getSelection && document.createRange ) { //Get caret position when user adds emoji
-											var sel = window.getSelection && window.getSelection();
-											if ( sel && sel.rangeCount > 0 ) {
-												window.activityCaretPosition = sel.getRangeAt( 0 );
-											}
-										} else {
-											window.activityCaretPosition = document.selection.createRange();
-										}
-
-										// Enable post submit button
-										$( '#whats-new-form' ).removeClass( 'focus-in--empty' );
-									},
-
-									picker_show: function () {
-										$( this.button[0] ).closest( '.post-emoji' ).addClass('active');
-									},
-
-									picker_hide: function () {
-										$( this.button[0] ).closest( '.post-emoji' ).removeClass('active');
-									},
-								}
-							}
-						);
-					}
+					// EmojioneArea initialization removed as host OS emoji support is sufficient.
 				} );
 			},
 
 			postValidate: function () {
-				var $whatsNew = this.$el.find( '#whats-new' );
-				var content = $.trim( $whatsNew[0].innerHTML.replace( /<div>/gi, '\n' ).replace( /<\/div>/gi, '' ) );
-				content     = content.replace( /&nbsp;/g, ' ' );
+				var content = '';
+				if (window.activity_editor) {
+					content = window.activity_editor.getHTML();
+				} else {
+					// Fallback if editor not initialized
+					var $whatsNew = this.$el.find( '#whats-new' );
+					if ($whatsNew.length) content = $.trim( $whatsNew[0].innerHTML );
+				}
+				content = content.replace( /&nbsp;/g, ' ' );
 
-				if ( content.replace( /<p>/gi, '' ).replace( /<\/p>/gi, '' ).replace( /<br>/gi, '' ) === '' ) {
-					$whatsNew[0].innerHTML = '';
+				// For ToastUI, getMarkdown().trim() might be a better check for "empty" if only whitespace/empty tags
+				var textContent = '';
+				if (window.activity_editor) {
+					textContent = $( $.parseHTML(content) ).text().trim(); // Basic text extraction
+					if (window.activity_editor.getMarkdown().trim() === '') { // More robust check
+						if (window.activity_editor.getHTML() !== '') window.activity_editor.setHTML(''); // Clear if only whitespace/empty tags
+					}
+				} else {
+					var $whatsNewEl = this.$el.find( '#whats-new' );
+					if ($whatsNewEl.length) {
+						textContent = $( $.parseHTML( $whatsNewEl[0].innerHTML ) ).text().trim();
+						if (textContent === '' && $whatsNewEl[0].innerHTML.replace(/<p><br><\/p>/g, '').replace(/<br>/g, '').trim() === '') {
+							$whatsNewEl[0].innerHTML = '';
+						}
+					}
 				}
 
-				if ( $( $.parseHTML( content ) ).text().trim() !== '' || content.includes( 'class="emoji"' ) || ( ! _.isUndefined( this.model.get( 'link_success' ) ) && true === this.model.get( 'link_success' ) ) || ( ! _.isUndefined( this.model.get( 'video' ) ) && 0 !== this.model.get('video').length ) || ( ! _.isUndefined( this.model.get( 'document' ) ) && 0 !== this.model.get('document').length ) || ( ! _.isUndefined( this.model.get( 'media' ) ) && 0 !== this.model.get('media').length ) || ( ! _.isUndefined( this.model.get( 'gif_data' ) ) && ! _.isEmpty( this.model.get( 'gif_data' ) ) ) || ( ! _.isUndefined( this.model.get( 'poll' ) ) && ! _.isEmpty( this.model.get( 'poll' ) ) ) ) {
+
+				if ( textContent !== '' /* Emoji class check removed */ || ( ! _.isUndefined( this.model.get( 'link_success' ) ) && true === this.model.get( 'link_success' ) ) || ( ! _.isUndefined( this.model.get( 'video' ) ) && 0 !== this.model.get('video').length ) || ( ! _.isUndefined( this.model.get( 'document' ) ) && 0 !== this.model.get('document').length ) || ( ! _.isUndefined( this.model.get( 'media' ) ) && 0 !== this.model.get('media').length ) || ( ! _.isUndefined( this.model.get( 'gif_data' ) ) && ! _.isEmpty( this.model.get( 'gif_data' ) ) ) || ( ! _.isUndefined( this.model.get( 'poll' ) ) && ! _.isEmpty( this.model.get( 'poll' ) ) ) ) {
 					this.$el.removeClass( 'focus-in--empty' );
 				} else {
 					this.$el.addClass( 'focus-in--empty' );
-				}
-			},
-
-			mediumLink: function () {
-				var value = $( '.medium-editor-toolbar-input' ).val();
-
-				if ( value !== '' ) {
-					$( '#whats-new-form' ).removeClass( 'focus-in--empty' );
 				}
 			},
 
@@ -5405,12 +5183,27 @@ window.bp = window.bp || {};
 					}
 				);
 
-				$( event.target ).css(
-					{
-						resize: 'vertical',
-						height: 'auto'
+				// Ensure editor is initialized/re-initialized and focused when form is fully displayed.
+				if (this.formContentView && this.formContentView.views) {
+					var whatsNewViewInstance = this.formContentView.views.get('#whats-new-textarea');
+					if (whatsNewViewInstance && whatsNewViewInstance[0] && typeof whatsNewViewInstance[0].activateToastUIEditor === 'function') {
+						console.log('PostForm.displayFull: Calling activateToastUIEditor on WhatsNew instance.');
+						whatsNewViewInstance[0].activateToastUIEditor();
+						console.log('PostForm.displayFull: activateToastUIEditor called. Checking window.activity_editor immediately:', window.activity_editor);
+						setTimeout(function() {
+							if (window.activity_editor && typeof window.activity_editor.focus === 'function') {
+								console.log('PostForm.displayFull: Focusing editor via window.activity_editor.');
+								window.activity_editor.focus();
+							} else {
+								console.log('PostForm.displayFull: window.activity_editor not found or not focusable in setTimeout.');
+							}
+						}, 50); // Small delay to ensure editor is ready
+					} else {
+						console.log('PostForm.displayFull: WhatsNew instance or activateToastUIEditor method not found.');
 					}
-				);
+				} else {
+					console.log('PostForm.displayFull: formContentView or its views not found.');
+				}
 
 				// Backcompat custom fields.
 				if ( true === BP_Nouveau.activity.params.backcompat ) {
@@ -5556,13 +5349,21 @@ window.bp = window.bp || {};
 				}
 				if( !this.$el.hasClass( 'focus-in' ) ){
 					//Set focus on "#whats-new" to trigger 'displayFull'
-					var element = this.$el.find( '#whats-new' )[0];
-					var element_selection = window.getSelection();
-					var element_range = document.createRange();
-					element_range.setStart( element, 0);
-					element_range.setEnd( element, 0);
-					element_selection.removeAllRanges();
-					element_selection.addRange( element_range );
+					// For ToastUI, focusing the container div might not be enough,
+					// ideally, focus the actual editor instance if available.
+					if (window.activity_editor) {
+						window.activity_editor.focus();
+					} else {
+						var element = this.$el.find( '#whats-new' )[0];
+						if (element) {
+							var element_selection = window.getSelection();
+							var element_range = document.createRange();
+							element_range.setStart( element, 0);
+							element_range.setEnd( element, 0);
+							element_selection.removeAllRanges();
+							element_selection.addRange( element_range );
+						}
+					}
 				}
 			},
 
@@ -5576,12 +5377,12 @@ window.bp = window.bp || {};
 					}
 				);
 
-				$( '#whats-new' ).css(
-					{
-						resize: 'none',
-						height: '50px'
-					}
-				);
+				// Reset ToastUI editor content
+				if (window.activity_editor) {
+					window.activity_editor.setHTML('');
+				} else {
+					$( '#whats-new' ).html(''); // Fallback
+				}
 
 				$( '#whats-new-form' ).removeClass( 'focus-in focus-in--privacy focus-in--group focus-in--scroll has-draft' ).parent().removeClass( 'modal-popup' ).closest( 'body' ).removeClass( 'activity-modal-open' ); // remove class when reset.
 
@@ -5616,9 +5417,7 @@ window.bp = window.bp || {};
 				whats_new_form.find( '#bp-activity-group-ac-items .bp-activity-object' ).removeClass( 'selected' );
 				whats_new_form.find( '#bp-activity-group-ac-items .bp-activity-object__radio' ).prop( 'checked', false );
 
-				$( '.medium-editor-toolbar' ).removeClass( 'active medium-editor-toolbar-active' );
 				$( '#show-toolbar-button' ).removeClass( 'active' );
-				$( '.medium-editor-action' ).removeClass( 'medium-editor-button-active' );
 				$( '.medium-editor-toolbar-actions' ).show();
 				$( '.medium-editor-toolbar-form' ).removeClass( 'medium-editor-toolbar-form-active' );
 				$( '#show-toolbar-button' ).parent( '.show-toolbar' ).attr( 'data-bp-tooltip', $( '#show-toolbar-button' ).parent( '.show-toolbar' ).attr( 'data-bp-tooltip-show' ) );
@@ -5711,34 +5510,18 @@ window.bp = window.bp || {};
 				);
 
 				// Post content.
-				var $whatsNew = self.$el.find( '#whats-new' );
-
-				var atwho_query = $whatsNew.find( 'span.atwho-query' );
-				for ( var i = 0; i < atwho_query.length; i++ ) {
-					$( atwho_query[ i ] ).replaceWith( atwho_query[ i ].innerText );
+				var content = '';
+				if (window.activity_editor) {
+					content = window.activity_editor.getHTML();
+				} else if (window.activity_edit_editor) { // Fallback for edit mode if separate instance
+					content = window.activity_edit_editor.getHTML();
+				} else {
+					// Fallback if no editor instance is ready (should ideally not happen here)
+					var $whatsNewFallback = self.$el.find( '#whats-new' );
+					if ($whatsNewFallback.length) content = $.trim( $whatsNewFallback[0].innerHTML );
 				}
 
-				// transform other emoji into emojionearea emoji.
-				$whatsNew.find( 'img.emoji' ).each(
-					function( index, Obj) {
-						$( Obj ).addClass( 'emojioneemoji' );
-						var emojis = $( Obj ).attr( 'alt' );
-						$( Obj ).attr( 'data-emoji-char', emojis );
-						$( Obj ).removeClass( 'emoji' );
-					}
-				);
-
-				// Transform emoji image into emoji unicode.
-				$whatsNew.find( 'img.emojioneemoji' ).replaceWith(
-					function () {
-						return this.dataset.emojiChar;
-					}
-				);
-
-				// Add valid line breaks.
-				var content = $.trim( $whatsNew[0].innerHTML.replace( /<div>/gi, '\n' ).replace( /<\/div>/gi, '' ) );
-				content     = content.replace( /&nbsp;/g, ' ' );
-
+				content = content.replace( /&nbsp;/g, ' ' );
 				self.model.set( 'content', content, { silent: true } );
 
 				// Silently add meta.
@@ -5894,26 +5677,14 @@ window.bp = window.bp || {};
 							matches     = response.activity.match( searchTerms );
 						}
 
-						/**
-						 * Before injecting the activity into the stream, we need to check the filter
-						 * and search terms are consistent with it when posting from a single item or
-						 * from the Activity directory.
-						 */
 						if ( ( ! searchTerms || matches ) ) {
 							toPrepend = ! store.filter || 0 === parseInt( store.filter, 10 ) || 'activity_update' === store.filter;
 						}
 
-						/**
-						 * "My Groups" tab is active.
-						 */
 						if ( toPrepend && response.is_directory ) {
 							toPrepend = ( 'all' === store.scope && ( 'user' === self.model.get( 'object' ) || 'group' === self.model.get( 'object' ) ) ) || ( self.model.get( 'object' ) + 's' === store.scope );
 						}
 
-						/**
-						 * In the user activity timeline, user is posting on other user's timeline
-						 * it will not have activity to prepend/append because of scope and privacy.
-						 */
 						if ( '' === response.activity && response.is_user_activity ) {
 							toPrepend = false;
 						}
@@ -6126,7 +5897,7 @@ window.bp = window.bp || {};
 
 						// check emoji is enable in groups or not.
 						if ( BP_Nouveau.media.emoji.groups === false ) {
-							$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
+							// $( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove(); // Removed, EmojioneArea is gone
 							$( '#editor-toolbar .post-emoji' ).addClass('post-emoji-hide');
 						} else {
 							$( '#editor-toolbar .post-emoji' ).removeClass('post-emoji-hide');
@@ -6160,7 +5931,7 @@ window.bp = window.bp || {};
 
 						// check emoji is enable in profile or not.
 						if ( BP_Nouveau.media.emoji.profile === false ) {
-							$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
+							// $( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove(); // Removed, EmojioneArea is gone
 							$( '#editor-toolbar .post-emoji' ).addClass('post-emoji-hide');
 						} else {
 							$( '#editor-toolbar .post-emoji' ).removeClass('post-emoji-hide');
@@ -6204,7 +5975,7 @@ window.bp = window.bp || {};
 
 						// check emoji is enable in groups or not.
 						if ( BP_Nouveau.media.emoji.groups === false ) {
-							$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
+							// $( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove(); // Removed, EmojioneArea is gone
 							$( '#editor-toolbar .post-emoji' ).addClass('post-emoji-hide');
 						} else {
 							$( '#editor-toolbar .post-emoji' ).removeClass('post-emoji-hide');
@@ -6240,7 +6011,7 @@ window.bp = window.bp || {};
 						// check emoji is enable in profile or not.
 						if ( BP_Nouveau.media.emoji.profile === false ) {
 							$( '#editor-toolbar .post-emoji' ).addClass('post-emoji-hide');
-							$( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove();
+							// $( '#whats-new-textarea' ).find( 'img.emojioneemoji' ).remove(); // Removed, EmojioneArea is gone
 						} else {
 							$( '#editor-toolbar .post-emoji' ).removeClass('post-emoji-hide');
 						}
