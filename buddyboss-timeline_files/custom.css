@@ -8,3 +8,9 @@ Make sure to respect the media queries! Otherwise you may
 accidentally add desktop styles to the mobile layout.
 https://www.w3schools.com/css/css_rwd_mediaqueries.asp
 --------------------------------------------------------------*/
+
+/* Attempt to fix ToastUI icon visibility by overriding background */
+.tui-editor-toolbar .tui-toolbar-item button {
+    background-color: transparent !important;
+    background: transparent !important; /* Cover shorthand property */
+}
