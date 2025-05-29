@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "9091:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+      - ./buddyboss-timeline_files:/usr/share/nginx/html/buddyboss-timeline_files
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf 

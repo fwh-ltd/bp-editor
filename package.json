@@ -1,0 +1,32 @@
+{
+  "name": "bp-editor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "targets": {
+    "buddypress-activity-post-form": {
+      "source": "src/buddypress-activity-post-form.js",
+      "distDir": "buddyboss-timeline_files"
+    },
+    "buddypress-activity": {
+      "source": "src/buddypress-activity.js",
+      "distDir": "buddyboss-timeline_files"
+    },
+    "buddypress-nouveau": {
+      "source": "src/buddypress-nouveau.js",
+      "distDir": "buddyboss-timeline_files"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -f buddyboss-timeline_files/buddypress-activity-post-form.js buddyboss-timeline_files/buddypress-activity.js buddyboss-timeline_files/buddypress-nouveau.js buddyboss-timeline_files/buddypress-activity-post-form.min.js buddyboss-timeline_files/buddypress-activity.min.js buddyboss-timeline_files/buddypress-nouveau.min.js buddyboss-timeline_files/buddypress-activity-post-form.js.map buddyboss-timeline_files/buddypress-activity.js.map buddyboss-timeline_files/buddypress-nouveau.js.map buddyboss-timeline_files/buddypress-activity-post-form.min.js.map buddyboss-timeline_files/buddypress-activity.min.js.map buddyboss-timeline_files/buddypress-nouveau.min.js.map",
+    "rename-files": "mv buddyboss-timeline_files/buddypress-activity-post-form.js buddyboss-timeline_files/buddypress-activity-post-form.min.js && mv buddyboss-timeline_files/buddypress-activity.js buddyboss-timeline_files/buddypress-activity.min.js && mv buddyboss-timeline_files/buddypress-nouveau.js buddyboss-timeline_files/buddypress-nouveau.min.js && mv buddyboss-timeline_files/buddypress-activity-post-form.js.map buddyboss-timeline_files/buddypress-activity-post-form.min.js.map && mv buddyboss-timeline_files/buddypress-activity.js.map buddyboss-timeline_files/buddypress-activity.min.js.map && mv buddyboss-timeline_files/buddypress-nouveau.js.map buddyboss-timeline_files/buddypress-nouveau.min.js.map && sed -i -E 's|//# sourceMappingURL=(.+)\\\\.js\\\\.map|//# sourceMappingURL=\\\\1.min.js.map|g' buddyboss-timeline_files/buddypress-activity-post-form.min.js && sed -i -E 's|//# sourceMappingURL=(.+)\\\\.js\\\\.map|//# sourceMappingURL=\\\\1.min.js.map|g' buddyboss-timeline_files/buddypress-activity.min.js && sed -i -E 's|//# sourceMappingURL=(.+)\\\\.js\\\\.map|//# sourceMappingURL=\\\\1.min.js.map|g' buddyboss-timeline_files/buddypress-nouveau.min.js",
+    "build": "npm run clean && npx parcel build && npm run rename-files"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.15.2"
+  }
+}
