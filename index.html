@@ -869,6 +869,9 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 </script>
 <script type="text/javascript" src="./buddyboss-timeline_files/bb-tutorlms-admin.min.js" id="bb-tutorlms-admin-js"></script>
 <script type="text/javascript" src="./buddyboss-timeline_files/medium-editor.min.js" id="bp-medium-editor-js"></script>
+<!-- ToastUI Editor -->
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 <!--[if lt IE 8]>
 <script type='text/javascript' src='http://localhost:8000/wp-includes/js/json2.min.js?ver=2015-05-03' id='json2-js'></script>
 <![endif]-->
@@ -1931,6 +1934,8 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 					</div>
 		</div><!-- search & filters -->
 <div class="emojionearea-theatre emojionearea"></div>
+
+<button id="test-editor-trigger" style="padding: 10px; margin: 20px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer;">Test Editor Popup</button>
 
 	<div id="activity-stream" class="activity single-user" data-bp-list="activity" data-ajax="false">
 				<ul class="activity-list item-list bp-list">
@@ -3155,6 +3160,44 @@ var bs_data = {"jm_ajax":"http:\/\/localhost:8000\/jm-ajax\/","ajaxurl":"http:\/
 <script type="text/javascript" src="./buddyboss-timeline_files/progressbar.min.js" id="progressbar-js-js"></script>
 <script type="text/javascript" src="./buddyboss-timeline_files/mousewheel.min.js" id="mousewheel-js-js"></script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var testButton = document.getElementById('test-editor-trigger');
+    if (testButton) {
+        testButton.addEventListener('click', function() {
+            console.log('Test Editor Popup button clicked');
+            var whatsNewElement = document.getElementById('whats-new');
+            if (whatsNewElement) {
+                console.log('Attempting to trigger display of the activity form.');
 
+                // Option 1: Dispatch a 'focusin' event to the #whats-new container
+                // This is what the PostForm view listens for to call displayFull
+                var focusInEvent = new Event('focusin', { bubbles: true, cancelable: true });
+                whatsNewElement.dispatchEvent(focusInEvent);
+                console.log('Dispatched focusin event to #whats-new.');
+
+                // Ensure the editor itself gets focus if it's a separate step after displayFull
+                // This might be redundant if displayFull handles editor focus, but good as a fallback.
+                setTimeout(function() { // Timeout to allow displayFull to execute
+                    if (window.activity_editor && typeof window.activity_editor.focus === 'function') {
+                        console.log('Focusing main ToastUI editor instance (window.activity_editor).');
+                        window.activity_editor.focus();
+                    } else if (window.activity_edit_editor && typeof window.activity_edit_editor.focus === 'function') {
+                        console.log('Focusing edit mode ToastUI editor instance (window.activity_edit_editor).');
+                        window.activity_edit_editor.focus();
+                    } else {
+                        console.log('No specific ToastUI editor instance (window.activity_editor or window.activity_edit_editor) found to focus.');
+                    }
+                }, 100); // Small delay
+
+            } else {
+                console.error('#whats-new element not found. Cannot trigger form display.');
+            }
+        });
+    } else {
+        console.error('#test-editor-trigger button not found.');
+    }
+});
+</script>
 
 </body></html>
