@@ -842,7 +842,6 @@ body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: 
 <link rel="stylesheet" id="buddyboss-theme-css-css" href="./buddyboss-timeline_files/theme.min.css" type="text/css" media="all">
 <link rel="stylesheet" id="buddyboss-theme-template-css" href="./buddyboss-timeline_files/template-v2.min.css" type="text/css" media="all">
 <link rel="stylesheet" id="buddyboss-theme-buddypress-css" href="./buddyboss-timeline_files/buddypress(1).min.css" type="text/css" media="all">
-<link rel="stylesheet" id="buddyboss-child-css-css" href="./buddyboss-timeline_files/custom.css" type="text/css" media="all">
 <script type="text/javascript" id="bb-twemoji-js-extra">
 /* <![CDATA[ */
 var bbemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/svg\/","svgExt":".svg"};
@@ -872,6 +871,12 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 <!-- ToastUI Editor -->
 <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
+<!-- Test Button for Toast UI Editor -->
+<div style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #007cba; color: white; padding: 10px; border-radius: 5px; cursor: pointer;" id="test-editor-trigger">
+    Test Toast UI Editor
+</div>
+
 <!--[if lt IE 8]>
 <script type='text/javascript' src='http://localhost:8000/wp-includes/js/json2.min.js?ver=2015-05-03' id='json2-js'></script>
 <![endif]-->
@@ -933,7 +938,7 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 						<a class="screen-reader-shortcut" href="http://localhost:8000/wp-login.php?action=logout&amp;_wpnonce=2b6e8da1ce">Log Out</a>
 					</div>
 
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-dark-grayscale"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 0.49803921568627"></fefuncr><fefuncg type="table" tableValues="0 0.49803921568627"></fefuncg><fefuncb type="table" tableValues="0 0.49803921568627"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-grayscale"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 1"></fefuncr><fefuncg type="table" tableValues="0 1"></fefuncg><fefuncb type="table" tableValues="0 1"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-purple-yellow"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.54901960784314 0.98823529411765"></fefuncr><fefuncg type="table" tableValues="0 1"></fefuncg><fefuncb type="table" tableValues="0.71764705882353 0.25490196078431"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-blue-red"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 1"></fefuncr><fefuncg type="table" tableValues="0 0.27843137254902"></fefuncg><fefuncb type="table" tableValues="0.5921568627451 0.27843137254902"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-midnight"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 0"></fefuncr><fefuncg type="table" tableValues="0 0.64705882352941"></fefuncg><fefuncb type="table" tableValues="0 1"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-magenta-yellow"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.78039215686275 1"></fefuncr><fefuncg type="table" tableValues="0 0.94901960784314"></fefuncg><fefuncb type="table" tableValues="0.35294117647059 0.47058823529412"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-purple-green"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.65098039215686 0.40392156862745"></fefuncr><fefuncg type="table" tableValues="0 1"></fefuncg><fefuncb type="table" tableValues="0.44705882352941 0.4"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-blue-orange"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.098039215686275 1"></fefuncr><fefuncg type="table" tableValues="0 0.66274509803922"></fefuncg><fefuncb type="table" tableValues="0.84705882352941 0.41960784313725"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-dark-grayscale"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 0.49803921568627"></fefuncr><fefuncg type="table" tableValues="0 0.49803921568627"></fefuncg><fefuncb type="table" tableValues="0 0.49803921568627"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-grayscale"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 1"></fefuncr><fefuncg type="table" tableValues="0 1"></fefuncg><fefuncb type="table" tableValues="0 1"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;"><defs><filter id="wp-duotone-purple-yellow"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.54901960784314 0.98823529411765"></fefuncr><fefuncg type="table" tableValues="0 1"></fefuncg><fefuncb type="table" tableValues="0.71764705882353 0.25490196078431"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden;"><defs><filter id="wp-duotone-blue-red"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 1"></fefuncr><fefuncg type="table" tableValues="0 0.27843137254902"></fefuncg><fefuncb type="table" tableValues="0.5921568627451 0.27843137254902"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden;"><defs><filter id="wp-duotone-midnight"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0 0"></fefuncr><fefuncg type="table" tableValues="0 0.64705882352941"></fefuncg><fefuncb type="table" tableValues="0 1"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden;"><defs><filter id="wp-duotone-magenta-yellow"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.78039215686275 1"></fefuncr><fefuncg type="table" tableValues="0 0.94901960784314"></fefuncg><fefuncb type="table" tableValues="0.35294117647059 0.47058823529412"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden;"><defs><filter id="wp-duotone-purple-green"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.65098039215686 0.40392156862745"></fefuncr><fefuncg type="table" tableValues="0 1"></fefuncg><fefuncb type="table" tableValues="0.44705882352941 0.4"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden;"><defs><filter id="wp-duotone-blue-orange"><fecolormatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 "></fecolormatrix><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr type="table" tableValues="0.098039215686275 1"></fefuncr><fefuncg type="table" tableValues="0 0.66274509803922"></fefuncg><fefuncb type="table" tableValues="0.84705882352941 0.41960784313725"></fefuncb><fefunca type="table" tableValues="1 1"></fefunca></fecomponenttransfer><fecomposite in2="SourceGraphic" operator="in"></fecomposite></filter></defs></svg>
 		
 		<div id="page" class="site">
 
@@ -1373,7 +1378,7 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 					</div>
 				</div>
 				<span class="privacy-radio">
-					<input type="radio" id="public" class="bp-activity-privacy__input" name="privacy" value="public" data-title="Public" checked="checked">
+					<input type="radio" id="public" class="bp-activity-privacy__input" name="privacy" value="public" data-title="Public"  checked='checked'>
 					<span></span>
 				</span>
 			</label>
@@ -1388,7 +1393,7 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 					</div>
 				</div>
 				<span class="privacy-radio">
-					<input type="radio" id="loggedin" class="bp-activity-privacy__input" name="privacy" value="loggedin" data-title="All Members">
+					<input type="radio" id="loggedin" class="bp-activity-privacy__input" name="privacy" value="loggedin" data-title="All Members" >
 					<span></span>
 				</span>
 			</label>
@@ -1403,7 +1408,7 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 					</div>
 				</div>
 				<span class="privacy-radio">
-					<input type="radio" id="onlyme" class="bp-activity-privacy__input" name="privacy" value="onlyme" data-title="Only Me">
+					<input type="radio" id="onlyme" class="bp-activity-privacy__input" name="privacy" value="onlyme" data-title="Only Me" >
 					<span></span>
 				</span>
 			</label>
@@ -1426,7 +1431,7 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 			<i class="bb-icon-l bb-icon-at"></i>
 		</span>
 	</div>
-	<div id="medium-editor-toolbar-1" class="medium-editor-toolbar static-toolbar"><ul id="medium-editor-toolbar-actions1" class="medium-editor-toolbar-actions" style="display: block;"><li><button class="medium-editor-action medium-editor-action-bold medium-editor-button-first" data-action="bold" title="bold" aria-label="bold"><b>B</b></button></li><li><button class="medium-editor-action medium-editor-action-italic" data-action="italic" title="italic" aria-label="italic"><b><i>I</i></b></button></li><li><button class="medium-editor-action medium-editor-action-unorderedlist" data-action="insertunorderedlist" title="unordered list" aria-label="unordered list"><b>•</b></button></li><li><button class="medium-editor-action medium-editor-action-orderedlist" data-action="insertorderedlist" title="ordered list" aria-label="ordered list"><b>1.</b></button></li><li><button class="medium-editor-action medium-editor-action-quote" data-action="append-blockquote" title="blockquote" aria-label="blockquote"><b>“</b></button></li><li><button class="medium-editor-action medium-editor-action-anchor" data-action="createLink" title="link" aria-label="link"><b>#</b></button></li><li><button class="medium-editor-action medium-editor-action-pre medium-editor-button-last" data-action="append-pre" title="preformatted text" aria-label="preformatted text"><b>0101</b></button></li></ul><div class="medium-editor-toolbar-form" id="medium-editor-toolbar-form-anchor-1"><input type="text" class="medium-editor-toolbar-input" placeholder="Paste or type a link"><a href="http://localhost:8000/members/admin/activity/#" class="medium-editor-toolbar-save">✓</a><a href="http://localhost:8000/members/admin/activity/#" class="medium-editor-toolbar-close">×</a></div></div></div><div id="whats-new-toolbar" class="hidden">
+	<div id="medium-editor-toolbar-1" class="medium-editor-toolbar static-toolbar"><ul id="medium-editor-toolbar-actions1" class="medium-editor-toolbar-actions" style="display: block;"><li><button class="medium-editor-action medium-editor-action-bold medium-editor-button-first" data-action="bold" title="bold" aria-label="bold"><b>B</b></button></li><li><button class="medium-editor-action medium-editor-action-italic" data-action="italic" title="italic" aria-label="italic"><b><i>I</i></b></button></li><li><button class="medium-editor-action medium-editor-action-unorderedlist" data-action="insertunorderedlist" title="unordered list" aria-label="unordered list"><b>•</b></button></li><li><button class="medium-editor-action medium-editor-action-orderedlist" data-action="insertorderedlist" title="ordered list" aria-label="ordered list"><b>1.</b></button></li><li><button class="medium-editor-action medium-editor-action-quote" data-action="append-blockquote" title="blockquote" aria-label="blockquote"><b>"</b></button></li><li><button class="medium-editor-action medium-editor-action-anchor" data-action="createLink" title="link" aria-label="link"><b>#</b></button></li><li><button class="medium-editor-action medium-editor-action-pre medium-editor-button-last" data-action="append-pre" title="preformatted text" aria-label="preformatted text"><b>0101</b></button></li></ul><div class="medium-editor-toolbar-form" id="medium-editor-toolbar-form-anchor-1"><input type="text" class="medium-editor-toolbar-input" placeholder="Paste or type a link"><a href="http://localhost:8000/members/admin/activity/#" class="medium-editor-toolbar-save">✓</a><a href="http://localhost:8000/members/admin/activity/#" class="medium-editor-toolbar-close">×</a></div></div></div><div id="whats-new-toolbar" class="hidden">
 
 			
 	</div></form></div>
@@ -1935,8 +1940,6 @@ var bbTutorLMSVars = {"ajax_url":"http:\/\/localhost:8000\/wp-admin\/admin-ajax.
 		</div><!-- search & filters -->
 <div class="emojionearea-theatre emojionearea"></div>
 
-<button id="test-editor-trigger" style="padding: 10px; margin: 20px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer;">Test Editor Popup</button>
-
 	<div id="activity-stream" class="activity single-user" data-bp-list="activity" data-ajax="false">
 				<ul class="activity-list item-list bp-list">
 		
@@ -2374,6 +2377,93 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('#test-editor-trigger button not found.');
     }
 });
+
+// Add diagnostic script to check Toast UI editor and Post button status
+setTimeout(function() {
+    console.log('=== TOAST UI EDITOR DIAGNOSTIC ===');
+    
+    // Check if Toast UI is loaded
+    console.log('Toast UI available:', typeof window.toastui !== 'undefined');
+    
+    // Check if editor instances exist
+    console.log('window.activity_editor exists:', typeof window.activity_editor !== 'undefined');
+    console.log('window.activity_edit_editor exists:', typeof window.activity_edit_editor !== 'undefined');
+    
+    // Check form elements
+    var form = document.getElementById('whats-new-form');
+    console.log('Form found:', !!form);
+    if (form) {
+        console.log('Form classes:', form.className);
+        console.log('Form has focus-in class:', form.classList.contains('focus-in'));
+    }
+    
+    // Check submit button
+    var submitBtn = document.getElementById('aw-whats-new-submit');
+    console.log('Submit button found:', !!submitBtn);
+    if (submitBtn) {
+        console.log('Submit button disabled:', submitBtn.disabled);
+        console.log('Submit button classes:', submitBtn.className);
+        console.log('Submit button value:', submitBtn.value);
+    }
+    
+    // Check editor element
+    var editorEl = document.getElementById('whats-new');
+    console.log('Editor element found:', !!editorEl);
+    if (editorEl) {
+        console.log('Editor element classes:', editorEl.className);
+        console.log('Editor element content:', editorEl.innerHTML.substring(0, 100) + '...');
+    }
+    
+    // Check if form footer exists
+    var footer = document.querySelector('.whats-new-form-footer');
+    console.log('Form footer found:', !!footer);
+    
+    // Check submit wrapper
+    var submitWrapper = document.getElementById('activity-form-submit-wrapper');
+    console.log('Submit wrapper found:', !!submitWrapper);
+    if (submitWrapper) {
+        console.log('Submit wrapper parent:', submitWrapper.parentElement ? submitWrapper.parentElement.id : 'none');
+    }
+    
+    console.log('=== END DIAGNOSTIC ===');
+    
+    // Try to fix common issues
+    if (form && !form.classList.contains('focus-in')) {
+        console.log('Adding focus-in class to form...');
+        form.classList.add('focus-in');
+        form.classList.remove('focus-in--empty');
+    }
+    
+    if (submitBtn && submitBtn.disabled) {
+        console.log('Enabling submit button...');
+        submitBtn.disabled = false;
+    }
+    
+    // If Toast UI editor exists but form doesn't have proper state, fix it
+    if (window.activity_editor && form) {
+        console.log('Toast UI editor exists, ensuring form state...');
+        form.classList.add('focus-in');
+        form.classList.remove('focus-in--empty');
+        
+        // Trigger a change event to ensure handlers are called
+        if (typeof window.activity_editor.getHTML === 'function') {
+            var content = window.activity_editor.getHTML();
+            if (content && content.trim() !== '') {
+                console.log('Editor has content, triggering change event...');
+                // Manually trigger the change event logic
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+    }
+    
+}, 2000); // Wait 2 seconds for everything to load
 </script>
+
+<!-- Toast UI Editor Fix -->
+<script type="text/javascript" src="/src/toast-ui-fix.js" id="toast-ui-fix-js"></script>
+
+<script type="text/javascript" src="./buddyboss-timeline_files/magnific-popup.js" id="bp-nouveau-magnific-popup-js"></script>
 
 </body></html>
