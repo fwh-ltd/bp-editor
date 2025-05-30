@@ -230,20 +230,103 @@ window.bp = window.bp || {};
 				el: edit_activity_editor_el,
 				initialEditType: 'wysiwyg',
 				previewStyle: 'tab',
+				//height: '500px', // Adjust as needed
 				height: 'auto', // Adjust as needed
 				placeholder: BP_Nouveau.activity.strings.whatsnewPlaceholder || '',
 				initialValue: $(edit_activity_editor_el).html(), // Preserve existing content if any before init
 				toolbarItems: [
-					['bold', 'italic'],
-					['ul', 'ol'],
-					['quote'],
-					['link'],
-					['codeblock'] // 'pre' equivalent
+					['heading', 'bold', 'italic'],
+					['hr', 'quote'],
+					['ul', 'ol', 'task'],
+					['table', 'image', 'link'],
+					['code', 'codeblock']
 				],
-				events: {
-					// Standard ToastUI events like 'change', 'focus', 'blur' can go here if needed
-				},
+				events: { // Standard ToastUI events
+					change: function() {
+						// Trigger URL scraping when content changes
+						var self = bp.Nouveau.Activity.postForm.postForm;
+						if (self && typeof self.scrapURL === 'function') {
+							self.scrapURL( window.activity_editor.getHTML() );
+						}
+						
+						// Update form state to enable submit button
+						var $form = $(edit_activity_editor_el).closest('#whats-new-form');
+						if ($form.length) {
+							$form.addClass('focus-in').removeClass('focus-in--empty');
+							
+							// Ensure submit button is enabled
+							var $submitBtn = $form.find('#aw-whats-new-submit');
+							if ($submitBtn.length) {
+								$submitBtn.prop('disabled', false);
+							}
+						}
+					},
+					focus: function() {
+						var editorContentElement = $(window.activity_editor.getEditorElements().wwEditor); // Wysiwyg editor element
+						var scrollView = editorContentElement.closest( '.whats-new-scroll-view' );
+						if ( scrollView.length ) {
+							scrollView.closest( '#whats-new-form' ).addClass( 'focus-in--scroll' );
+						} else {
+							scrollView.closest( '#whats-new-form' ).removeClass( 'focus-in--scroll' );
+						}
+						
+						// Ensure form has focus-in state
+						var $form = $(edit_activity_editor_el).closest('#whats-new-form');
+						if ($form.length) {
+							$form.addClass('focus-in').removeClass('focus-in--empty');
+						}
+					}
+				}
 			});
+
+			console.log('WhatsNew.activateToastUIEditor: window.activity_editor assigned:', window.activity_editor);
+
+			// Ensure form footer and submit button are properly set up
+			setTimeout(function() {
+				var $form = $(edit_activity_editor_el).closest('#whats-new-form');
+				if ($form.length) {
+					// Ensure form has proper state
+					$form.addClass('focus-in').removeClass('focus-in--empty');
+					
+					// Find or create form footer
+					var $footer = $form.find('.whats-new-form-footer');
+					if (!$footer.length) {
+						$footer = $('<div class="whats-new-form-footer"></div>');
+						$form.append($footer);
+					}
+					
+					// Ensure submit wrapper exists
+					var $submitWrapper = $form.find('#activity-form-submit-wrapper');
+					if ($submitWrapper.length && !$footer.find('#activity-form-submit-wrapper').length) {
+						$submitWrapper.appendTo($footer);
+					}
+					
+					// Ensure submit button is enabled
+					var $submitBtn = $form.find('#aw-whats-new-submit');
+					if ($submitBtn.length) {
+						$submitBtn.prop('disabled', false);
+						
+						// Add click handler to ensure content is properly extracted
+						$submitBtn.off('click.toastui').on('click.toastui', function(e) {
+							// Let the form's natural submit handler take over
+							// but ensure the content is available
+							if (window.activity_editor) {
+								var content = window.activity_editor.getMarkdown();
+								// Update the hidden field or div that the form expects
+								var $whatsNew = $form.find('#whats-new');
+								if ($whatsNew.length) {
+									$whatsNew.data('markdown-content', content);								}
+							}
+						});
+					}
+				}
+			}, 100);
+
+			// Check for mentions (this part might need adjustment based on how mentions are integrated with ToastUI)
+			// For now, we'll skip the mentions integration as it was in the original TinyMCE version
+
+			// For ToastUI, it should be:
+			if (window.activity_editor) window.activity_editor.focus();
 
 			// Now Show the Modal.
 			$activityForm.addClass( 'modal-popup' ).closest('body').addClass( 'activity-modal-open' );
@@ -1102,15 +1185,15 @@ window.bp = window.bp || {};
 			var content = '';
 			// Prefer the main editor instance if available, otherwise fallback to edit instance or direct HTML
 			if (window.activity_editor) {
-				content = window.activity_editor.getHTML();
+				content = window.activity_editor.getMarkdown();
 			} else if (window.activity_edit_editor) {
-				content = window.activity_edit_editor.getHTML();
+				content = window.activity_edit_editor.getMarkdown();
 			} else {
 				// Fallback if editor not initialized
 				var whatsNewEl = self.postForm.$el.find( '#whats-new' )[0];
 				if (whatsNewEl) content = $.trim( whatsNewEl.innerHTML );
 			}
-			content = content.replace( /&nbsp;/g, ' ' ); // Keep common cleanup
+			//content = content.replace( /&nbsp;/g, ' ' ); // Keep common cleanup
 
 			self.postForm.model.set( 'content', content, {silent: true} );
 
@@ -3460,59 +3543,105 @@ window.bp = window.bp || {};
 						el: editorElement,
 						initialEditType: 'wysiwyg',
 						previewStyle: 'tab', // Or 'vertical'
+						//height: '500px', // Adjust as needed
 						height: 'auto', // Adjust as needed, or set a fixed height e.g., '200px'
 						minHeight: '100px', // Or your preferred min height
 						placeholder: BP_Nouveau.activity.strings.whatsnewPlaceholder || '',
 						initialValue: this.$el.html(), // Preserve existing content if any
 						toolbarItems: [
-							['bold', 'italic'],
-							['ul', 'ol'],
-							['quote'],
-							['link'],
-							['codeblock'] // 'pre' equivalent
+							['heading', 'bold', 'italic'],
+							['hr', 'quote'],
+							['ul', 'ol', 'task'],
+							['table', 'image', 'link'],
+							['code', 'codeblock']
 						],
 						events: { // Standard ToastUI events
 							change: function() {
-								// Handle URL scraping
-								if ( ! _.isUndefined( BP_Nouveau.activity.params.link_preview ) ) {
-									if ( self.linkTimeout != null ) {
-										clearTimeout( self.linkTimeout );
-									}
-									self.linkTimeout = setTimeout(
-										function () {
-											self.linkTimeout = null;
-											self.scrapURL( window.activity_editor.getHTML() );
-										},
-										500
-									);
+								// Trigger URL scraping when content changes
+								var self = bp.Nouveau.Activity.postForm.postForm;
+								if (self && typeof self.scrapURL === 'function') {
+									self.scrapURL( window.activity_editor.getHTML() );
 								}
-
-								// Handle scroll class
+								
+								// Update form state to enable submit button
+								var $form = $(editorElement).closest('#whats-new-form');
+								if ($form.length) {
+									$form.addClass('focus-in').removeClass('focus-in--empty');
+									
+									// Ensure submit button is enabled
+									var $submitBtn = $form.find('#aw-whats-new-submit');
+									if ($submitBtn.length) {
+										$submitBtn.prop('disabled', false);
+									}
+								}
+							},
+							focus: function() {
 								var editorContentElement = $(window.activity_editor.getEditorElements().wwEditor); // Wysiwyg editor element
 								var scrollView = editorContentElement.closest( '.whats-new-scroll-view' );
-								if (scrollView.length) {
-									var scrollViewScrollHeight = scrollView.prop('scrollHeight');
-									var scrollViewClientHeight = scrollView.prop('clientHeight');
-									if ( scrollViewScrollHeight > scrollViewClientHeight ) {
-										scrollView.closest( '#whats-new-form' ).addClass( 'focus-in--scroll' );
-									} else {
-										scrollView.closest( '#whats-new-form' ).removeClass( 'focus-in--scroll' );
-									}
+								if ( scrollView.length ) {
+									scrollView.closest( '#whats-new-form' ).addClass( 'focus-in--scroll' );
+								} else {
+									scrollView.closest( '#whats-new-form' ).removeClass( 'focus-in--scroll' );
 								}
-								// Trigger postValidate on the form
-								self.$el.closest('form#whats-new-form').trigger('input');
+								
+								// Ensure form has focus-in state
+								var $form = $(editorElement).closest('#whats-new-form');
+								if ($form.length) {
+									$form.addClass('focus-in').removeClass('focus-in--empty');
+								}
 							}
-						},
+						}
 					});
+
 					console.log('WhatsNew.activateToastUIEditor: window.activity_editor assigned:', window.activity_editor);
 
+					// Ensure form footer and submit button are properly set up
+					setTimeout(function() {
+						var $form = $(editorElement).closest('#whats-new-form');
+						if ($form.length) {
+							// Ensure form has proper state
+							$form.addClass('focus-in').removeClass('focus-in--empty');
+							
+							// Find or create form footer
+							var $footer = $form.find('.whats-new-form-footer');
+							if (!$footer.length) {
+								$footer = $('<div class="whats-new-form-footer"></div>');
+								$form.append($footer);
+							}
+							
+							// Ensure submit wrapper exists
+							var $submitWrapper = $form.find('#activity-form-submit-wrapper');
+							if ($submitWrapper.length && !$footer.find('#activity-form-submit-wrapper').length) {
+								$submitWrapper.appendTo($footer);
+							}
+							
+							// Ensure submit button is enabled
+							var $submitBtn = $form.find('#aw-whats-new-submit');
+							if ($submitBtn.length) {
+								$submitBtn.prop('disabled', false);
+								
+								// Add click handler to ensure content is properly extracted
+								$submitBtn.off('click.toastui').on('click.toastui', function(e) {
+									// Let the form's natural submit handler take over
+									// but ensure the content is available
+									if (window.activity_editor) {
+										var content = window.activity_editor.getHTML();
+										// Update the hidden field or div that the form expects
+										var $whatsNew = $form.find('#whats-new');
+										if ($whatsNew.length) {
+											$whatsNew.html(content);
+										}
+									}
+								});
+							}
+						}
+					}, 100);
+
 					// Check for mentions (this part might need adjustment based on how mentions are integrated with ToastUI)
-					var mention = bp.Nouveau.getLinkParams( null, 'r' ) || null;
-					if ( ! _.isNull( mention ) ) {
-						// This was $( '#message_content' ).focus();
-						// For ToastUI, it should be:
-						if (window.activity_editor) window.activity_editor.focus();
-					}
+					// For now, we'll skip the mentions integration as it was in the original TinyMCE version
+
+					// For ToastUI, it should be:
+					if (window.activity_editor) window.activity_editor.focus();
 				} else {
 					console.log('WhatsNew.activateToastUIEditor: Condition NOT met or toastui undefined. Editor not initialized/assigned to window.activity_editor.');
 				}
@@ -4458,6 +4587,7 @@ window.bp = window.bp || {};
 							$( '#whats-new-toolbar .post-video.video-support' ).removeClass('video-support-hide');
 						}
 
+						
 						bp.Nouveau.Activity.postForm.postGifProfile = new bp.Views.PostGifProfile( { model: this.model } );
 
 						// check emoji is enable in profile or not.
@@ -4985,11 +5115,22 @@ window.bp = window.bp || {};
 			tagName: 'div',
 			id: 'activity-form-submit-wrapper',
 			initialize: function () {
-				$( '#whats-new-form' ).addClass( 'focus-in' ).parent().addClass( 'modal-popup' ).closest( 'body' ).addClass( 'activity-modal-open' ); // add some class to form so that DOM knows about focus.
+				var $whatsNewForm = $( '#whats-new-form' );
+				var isEditForm = $whatsNewForm.hasClass('bp-activity-edit') || $whatsNewForm.parent().hasClass('modal-popup');
+
+				if ( isEditForm ) {
+					// Only add modal classes if it's an edit form
+					$whatsNewForm.addClass( 'focus-in' ).parent().addClass( 'modal-popup' ).closest( 'body' ).addClass( 'activity-modal-open' );
+				} else {
+					// For the main form, just ensure 'focus-in' and remove modal classes from body
+					$whatsNewForm.addClass( 'focus-in' );
+					$whatsNewForm.parent().removeClass( 'modal-popup' ); // Ensure parent is not a modal
+					$( 'body' ).removeClass( 'activity-modal-open initial-post-form-open focusin-post-form-open' );
+				}
 
 				//Show placeholder form
 				$( '#bp-nouveau-activity-form-placeholder' ).show();
-
+				
 				// Add BB Poll View.
 				if ( ! _.isUndefined( bp.Views.activityPollForm ) ) {
 					this.views.add( new bp.Views.activityPollForm( { model: this.model } ) );
@@ -5100,11 +5241,14 @@ window.bp = window.bp || {};
 
 				var $this = this;
 				$( document ).ready( function ( event ) {
-					$( '#whats-new-form' ).closest( 'body' ).addClass( 'initial-post-form-open' );
-					if ( $( 'body' ).hasClass( 'initial-post-form-open' ) ) {
-						$this.displayFull( event );
-						$this.$el.closest( '.activity-update-form' ).find( '#aw-whats-new-reset' ).trigger( 'click' ); //Trigger reset
-					}
+					// Prevent adding modal class initially for the main post form.
+					// $( '#whats-new-form' ).closest( 'body' ).addClass( 'initial-post-form-open' ); 
+					
+					// Always display the full form components. 
+					// displayFull will handle modal aspects conditionally based on whether it's an edit form.
+					var syntheticEvent = event || { type: 'initialSetup' }; // Ensure event object exists for displayFull
+					$this.displayFull( syntheticEvent );
+					$this.$el.closest( '.activity-update-form' ).find( '#aw-whats-new-reset' ).trigger( 'click' ); //Trigger reset
 					// EmojioneArea initialization removed as host OS emoji support is sufficient.
 				} );
 			},
@@ -5112,13 +5256,13 @@ window.bp = window.bp || {};
 			postValidate: function () {
 				var content = '';
 				if (window.activity_editor) {
-					content = window.activity_editor.getHTML();
+					content = window.activity_editor.getMarkdown();
 				} else {
 					// Fallback if editor not initialized
 					var $whatsNew = this.$el.find( '#whats-new' );
 					if ($whatsNew.length) content = $.trim( $whatsNew[0].innerHTML );
 				}
-				content = content.replace( /&nbsp;/g, ' ' );
+				//content = content.replace( /&nbsp;/g, ' ' );
 
 				// For ToastUI, getMarkdown().trim() might be a better check for "empty" if only whitespace/empty tags
 				var textContent = '';
@@ -5157,8 +5301,25 @@ window.bp = window.bp || {};
 					return;
 				}
 
-				if ( 'focusin' === event.type ) {
-					$( '#whats-new-form' ).closest( 'body' ).removeClass( 'initial-post-form-open' ).addClass( event.type + '-post-form-open' );
+				var isEditForm = this.$el.hasClass('bp-activity-edit') || this.$el.parent().hasClass('modal-popup');
+
+				if ( !isEditForm && event.type !== 'initialSetup' ) { // Only apply focusin logic if not an edit form and not initial setup
+					// For non-edit, non-modal forms:
+					// Ensure no modal body classes are present.
+					$( 'body' ).removeClass( 'initial-post-form-open focusin-post-form-open activity-modal-open' );
+					// Add focus-in class to body if it's a genuine focus event on the main form
+					if ( 'focusin' === event.type ) {
+						this.$el.closest( 'body' ).addClass( event.type + '-post-form-open' );
+					}
+				} else if (isEditForm) { // Only apply modal logic if it IS an edit form
+					// Original logic for modal forms (likely edit forms)
+					if ( 'focusin' === event.type ) {
+						// Note: '#whats-new-form' is this.$el
+						this.$el.closest( 'body' ).removeClass( 'initial-post-form-open' ).addClass( event.type + '-post-form-open' );
+					} else if ( event.type === 'initialSetup' ) {
+						// If it's an initial setup for an edit form, ensure modal classes are on body
+						this.$el.closest( 'body' ).addClass( 'initial-post-form-open activity-modal-open' );
+					}
 				}
 				this.model.on( 'change:video change:document change:media change:gif_data change:privacy, change:link_success', this.postValidate, this );
 
@@ -5512,16 +5673,16 @@ window.bp = window.bp || {};
 				// Post content.
 				var content = '';
 				if (window.activity_editor) {
-					content = window.activity_editor.getHTML();
+					content = window.activity_editor.getMarkdown();
 				} else if (window.activity_edit_editor) { // Fallback for edit mode if separate instance
-					content = window.activity_edit_editor.getHTML();
+					content = window.activity_edit_editor.getMarkdown();
 				} else {
 					// Fallback if no editor instance is ready (should ideally not happen here)
 					var $whatsNewFallback = self.$el.find( '#whats-new' );
 					if ($whatsNewFallback.length) content = $.trim( $whatsNewFallback[0].innerHTML );
 				}
 
-				content = content.replace( /&nbsp;/g, ' ' );
+				//content = content.replace( /&nbsp;/g, ' ' );
 				self.model.set( 'content', content, { silent: true } );
 
 				// Silently add meta.
@@ -6230,3 +6391,4 @@ window.bp = window.bp || {};
 	bp.Nouveau.Activity.postForm.start();
 
 } )( bp, jQuery );
+
